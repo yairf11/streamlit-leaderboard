@@ -7,16 +7,25 @@ from src.utils import remove_illegal_filename_characters
 
 
 class Login:
-    def __init__(self, password_manager: UsernamePasswordManager, submission_manager: SubmissionManager):
+    def __init__(self, password_manager: UsernamePasswordManager):
         self.password_manager = password_manager
-        self.submission_manager = submission_manager
         self.session_state = get_session_state(username='', is_logged_in=False)
 
         # placeholders
+        self.first_login_checkbox_placeholder = None
+        self.username_placeholder = None
+        self.pwd_placeholder = None
+        self.pwd2_placeholder = None
+        self.login_button_placeholder = None
+        self.signout_button_placeholder = None
+
+    def init(self):
         self.first_login_checkbox_placeholder = st.sidebar.empty()
         self.username_placeholder = st.sidebar.empty()
         self.pwd_placeholder = st.sidebar.empty()
         self.pwd2_placeholder = st.sidebar.empty()
+        self.login_button_placeholder = st.sidebar.empty()
+        self.signout_button_placeholder = st.sidebar.empty()
 
     def get_username(self) -> str:
         return self.session_state.username
@@ -26,6 +35,8 @@ class Login:
         self.username_placeholder.empty()
         self.pwd_placeholder.empty()
         self.pwd2_placeholder.empty()
+        self.login_button_placeholder.empty()
+        self.signout_button_placeholder.empty()
 
     def run_and_return_if_access_is_allowed(self) -> bool:
         if (not self.password_manager.is_username_taken(self.session_state.username)) or \
@@ -38,11 +49,15 @@ class Login:
                 is_logged_in = self.try_login()
             if is_logged_in:
                 self.clear_placeholders()
+            return is_logged_in
         return True
 
     def try_login(self) -> bool:
         username = self.username_placeholder.text_input("Username:", value="", max_chars=30)
         pwd = self.pwd_placeholder.text_input("Password:", value="", type="password", max_chars=30)
+        login_button = self.login_button_placeholder.button("Login")
+        if not login_button:
+            return False
         self.session_state.username = username
         if (self.password_manager.is_username_taken(self.session_state.username)) and \
                 (pwd == self.password_manager.decrypt(self.session_state.username)):
@@ -59,6 +74,9 @@ class Login:
         username = self.username_placeholder.text_input("Username:", value="", max_chars=30)
         pwd = self.pwd_placeholder.text_input("Password:", value="", type="password", max_chars=30)
         pwd2 = self.pwd2_placeholder.text_input("Retype password:", value="", type="password", max_chars=30)
+        signup_button = self.login_button_placeholder.button("Sign up")
+        if not signup_button:
+            return False
 
         if not self._is_valid_username(username):
             st.sidebar.error('Invalid username. Must have only alphanumeric or ".-_ " characters, '
@@ -73,5 +91,15 @@ class Login:
             self.session_state.username = username
             self.password_manager.encrypt(username, pwd)
             self.session_state.is_logged_in = True
+            return True
+        return False
+
+    def has_user_signed_out(self) -> bool:
+        if not self.session_state.is_logged_in:
+            return False
+        if self.signout_button_placeholder.button("Sign out"):
+            self.session_state.username = ''
+            self.session_state.is_logged_in = False
+            self.clear_placeholders()
             return True
         return False

@@ -8,14 +8,23 @@ from src.submissions_manager import SubmissionManager
 from src.config import SUBMISSIONS_DIR
 from src.submission_sidebar import SubmissionSidebar
 
+@st.cache(allow_output_mutation=True)
+def get_login() -> Login:
+    password_manager = UsernamePasswordManager()
+    return Login(password_manager)
 
-submission_manager = SubmissionManager(SUBMISSIONS_DIR)
-password_manager = UsernamePasswordManager()
+@st.cache(allow_output_mutation=True)
+def get_submission_sidebar(username: str, submissions_dir: pathlib.Path) -> SubmissionSidebar:
+    submission_manager = SubmissionManager(submissions_dir)
+    return SubmissionSidebar(username, submission_manager)
 
-login = Login(password_manager, submission_manager)
-if login.run_and_return_if_access_is_allowed():
-    submissions_sidebar = SubmissionSidebar(SubmissionManager(SUBMISSIONS_DIR))
-    submissions_sidebar.run()
+
+login = get_login()
+login.init()
+
+if (not login.has_user_signed_out()) and login.run_and_return_if_access_is_allowed():
+    submission_sidebar = get_submission_sidebar(login.get_username(), SUBMISSIONS_DIR)
+    submission_sidebar.run()
 
 
 
