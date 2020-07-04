@@ -15,6 +15,7 @@ password_manager = UsernamePasswordManager()
 login = Login(password_manager, submission_manager)
 if login.run_and_return_if_access_is_allowed():
     submissions_sidebar = SubmissionSidebar(SubmissionManager(SUBMISSIONS_DIR))
+    submissions_sidebar.run()
 
 
 
