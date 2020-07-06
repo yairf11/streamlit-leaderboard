@@ -22,9 +22,7 @@ def get_submission_sidebar(username: str, submissions_dir: pathlib.Path) -> Subm
 login = get_login()
 login.init()
 
-if (not login.has_user_signed_out()) and login.run_and_return_if_access_is_allowed():
-    submission_sidebar = get_submission_sidebar(login.get_username(), SUBMISSIONS_DIR)
-    submission_sidebar.run()
-
-
-
+if login.run_and_return_if_access_is_allowed():
+    if not login.has_user_signed_out():
+        submission_sidebar = get_submission_sidebar(login.get_username(), SUBMISSIONS_DIR)
+        submission_sidebar.run()

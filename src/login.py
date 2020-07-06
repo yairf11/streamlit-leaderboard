@@ -30,6 +30,9 @@ class Login:
     def get_username(self) -> str:
         return self.session_state.username
 
+    def is_logged_in(self) -> bool:
+        return self.session_state.is_logged_in
+
     def clear_placeholders(self):
         self.first_login_checkbox_placeholder.empty()
         self.username_placeholder.empty()
@@ -58,9 +61,9 @@ class Login:
         login_button = self.login_button_placeholder.button("Login")
         if not login_button:
             return False
-        self.session_state.username = username
-        if (self.password_manager.is_username_taken(self.session_state.username)) and \
-                (pwd == self.password_manager.decrypt(self.session_state.username)):
+        if (self.password_manager.is_username_taken(username)) and \
+                (pwd == self.password_manager.decrypt(username)):
+            self.session_state.username = username
             self.session_state.is_logged_in = True
             return True
         else:
@@ -101,5 +104,6 @@ class Login:
             self.session_state.username = ''
             self.session_state.is_logged_in = False
             self.clear_placeholders()
+            self.run_and_return_if_access_is_allowed()
             return True
         return False
