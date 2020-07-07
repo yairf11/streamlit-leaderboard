@@ -5,15 +5,23 @@ from typing import Tuple
 
 
 @functools.total_ordering
-class Metric:
-    def __init__(self, name: str, value: float, higher_is_better: bool):
-        self.name = name
+class Metric(ABC):
+    def __init__(self, value: float):
         self.value = value
-        self.higher_is_better = higher_is_better
+
+    @classmethod
+    @abstractmethod
+    def name(cls) -> str:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def higher_is_better(cls) -> bool:
+        pass
 
     def _check_other_metric_compatibility(self, other):
-        if other.name != self.name or other.higer_is_better != self.higher_is_better:
-            raise TypeError(f"Comparing two different metrics: {self.name} and {other.name}")
+        if not isinstance(other, type(self)):
+            raise TypeError(f"Comparing two different metrics: {type(other)} and {type(self)}")
 
     def __eq__(self, other):
         self._check_other_metric_compatibility(other)
@@ -25,9 +33,9 @@ class Metric:
 
 
 class Evaluator(ABC):
-    def __init__(self, ground_truth_file: Path):
-        self.ground_truth_file = ground_truth_file
+    def __init__(self, metrics: Tuple[Metric, ...]):
+        self.metrics = metrics
 
     @abstractmethod
-    def evaluate(self) -> Tuple[Metric]:
+    def evaluate(self, filepath: Path) -> Tuple[Metric, ...]:
         pass
