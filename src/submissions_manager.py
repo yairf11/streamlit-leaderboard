@@ -4,7 +4,7 @@ from io import BytesIO, StringIO
 from pathlib import Path
 from typing import List, Callable, Tuple, Dict, Union, Optional
 
-from src.evaluator import Metric
+from src.evaluator import Metric, Evaluator
 from src.utils import remove_illegal_filename_characters
 
 
@@ -40,12 +40,12 @@ class SingleParticipantSubmissions:
     def clear_results(self):
         self.results.clear()
 
-    def update_results(self, evaluator: Callable[[Path], Tuple[Metric, ...]]):
+    def update_results(self, evaluator: Evaluator):
         submissions = self.get_submissions()
         for submission in submissions:
             if submission in self.results:
                 continue
-            self.results[submission] = evaluator(submission)
+            self.results[submission] = evaluator.evaluate(submission)
 
     def get_best_result(self) -> Tuple[Path, Tuple[Metric, ...]]:
         return max([(path, result) for path, result in self.results.items()], key=lambda x: x[1])
