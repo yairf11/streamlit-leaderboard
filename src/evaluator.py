@@ -1,7 +1,7 @@
 import functools
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Type
 
 
 @functools.total_ordering
@@ -33,9 +33,15 @@ class Metric(ABC):
 
 
 class Evaluator(ABC):
-    def __init__(self, metrics: Tuple[Metric, ...]):
-        self.metrics = metrics
+    @classmethod
+    @abstractmethod
+    def metrics(cls) -> Tuple[Type[Metric], ...]:
+        pass
 
     @abstractmethod
     def evaluate(self, filepath: Path) -> Tuple[Metric, ...]:
+        pass
+
+    @abstractmethod
+    def validate_submission_return_error_message(self, filepath: Path) -> bool:
         pass

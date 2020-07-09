@@ -15,7 +15,7 @@ class Leaderboard:
         participants_dict = self.submissions_manager.participants
         for participant in participants_dict.values():
             participant.update_results(self.evaluator)
-        metric_names = [metric.name() for metric in self.evaluator.metrics]
+        metric_names = [metric.name() for metric in self.evaluator.metrics()]
         leaderboard = pd.DataFrame([[pname, *p.get_best_result()[1]] for pname, p in participants_dict.items()],
                                    columns=['Participant Name', *metric_names])
         leaderboard.sort_values(by=metric_names, inplace=True)

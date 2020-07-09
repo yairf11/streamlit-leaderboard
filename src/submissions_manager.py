@@ -48,6 +48,7 @@ class SingleParticipantSubmissions:
             self.results[submission] = evaluator.evaluate(submission)
 
     def get_best_result(self) -> Tuple[Path, Tuple[Metric, ...]]:
+        print(self.participant_name, self.participant_submission_dir)
         return max([(path, result) for path, result in self.results.items()], key=lambda x: x[1])
 
 
@@ -55,24 +56,35 @@ class SubmissionManager:
     def __init__(self, submissions_dir: Path):
         self.submissions_dir = submissions_dir
         self._create_submissions_dir()
-        self.participants = self.load_participant_name2obj()
+        self._participants = self.load_participant_name2obj()
+
+    @property
+    def participants(self) -> Dict[str, SingleParticipantSubmissions]:
+        self._update_participants()
+        return self._participants
 
     def _create_submissions_dir(self):
         self.submissions_dir.mkdir(parents=True, exist_ok=True)
 
     def get_participant(self, participant_name: str) -> SingleParticipantSubmissions:
-        return self.participants[participant_name]
+        return self._participants[participant_name]
 
     def load_participant_name2obj(self) -> Dict[str, SingleParticipantSubmissions]:
         return {x.parts[-1]: SingleParticipantSubmissions(x) for x in self.submissions_dir.iterdir() if x.is_dir()}
 
+    def _update_participants(self):
+        existing_participants = {x.parts[-1] for x in self.submissions_dir.iterdir() if x.is_dir()}
+        for participant in self._participants:
+            if participant not in existing_participants:
+                del self._participants[participant]
+
     def add_participant(self, participant_name, exists_ok: bool = False):
         participant_name = remove_illegal_filename_characters(participant_name)
-        if participant_name in self.participants:
+        if participant_name in self._participants:
             if not exists_ok:
                 raise ValueError(f"Participant {participant_name} already exists!")
             return
-        self.participants[participant_name] = SingleParticipantSubmissions(
+        self._participants[participant_name] = SingleParticipantSubmissions(
             self.submissions_dir.joinpath(participant_name))
 
 
