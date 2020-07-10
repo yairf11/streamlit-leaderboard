@@ -48,8 +48,8 @@ class SingleParticipantSubmissions:
             self.results[submission] = evaluator.evaluate(submission)
 
     def get_best_result(self) -> Tuple[Path, Tuple[Metric, ...]]:
-        print(self.participant_name, self.participant_submission_dir)
-        return max([(path, result) for path, result in self.results.items()], key=lambda x: x[1])
+        return None if not self.results else max([(path, result) for path, result in self.results.items()],
+                                                 key=lambda x: x[1])
 
 
 class SubmissionManager:

@@ -22,7 +22,8 @@ def get_submission_manager():
 
 @st.cache(allow_output_mutation=True)
 def get_submission_sidebar(username: str) -> SubmissionSidebar:
-    return SubmissionSidebar(username, get_submission_manager())
+    return SubmissionSidebar(username, get_submission_manager(),
+                             submission_validator=get_evaluator().validate_submission)
 
 @st.cache(allow_output_mutation=True)
 def get_evaluator() -> Evaluator:

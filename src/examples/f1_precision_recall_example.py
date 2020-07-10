@@ -1,6 +1,8 @@
 import json
+from io import BytesIO, StringIO
+
 from pathlib import Path
-from typing import Tuple, Type
+from typing import Tuple, Type, Dict, Union
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 
@@ -48,23 +50,23 @@ class ExampleEvaluator(Evaluator):
     def metrics(cls) -> Tuple[Type[Metric], ...]:
         return (F1, Precision, Recall)
 
-    def validate_submission_return_error_message(self, filepath: Path) -> str:
-        try:
-            with filepath.open('r') as f:
-                predictions = json.load(f)
-        except:
-            return 'Problem while loading file.'
-        if type(predictions) != dict:
-            return 'Submission is not in the correct format.'
-        if set(predictions) != set(self.true_label_dict):
-            return 'Submission prediction ids not as expected.'
-        return ''
-
     def evaluate(self, filepath: Path) -> Tuple[Metric, ...]:
         with filepath.open('r') as f:
             predictions = json.load(f)
+        return self._evaluate_prediction_dict(predictions)
+
+    def _evaluate_prediction_dict(self, predictions: Dict[str, int]) -> Tuple[Metric, ...]:
         preds_array = np.array([predictions.get(k, 1-self.true_label_dict[k])
                                 for k in self.true_label_dict.keys()])
         precision, recall, f1, _ = precision_recall_fscore_support(y_true=self.labels_array,
-                                                                   y_pred=preds_array)
+                                                                   y_pred=preds_array,
+                                                                   average='binary')
         return (F1(f1), Precision(precision), Recall(recall))
+
+    def validate_submission(self, io_stream: Union[StringIO, BytesIO]) -> bool:
+        io_stream.seek(0)
+        try:
+            self._evaluate_prediction_dict(json.load(io_stream))
+            return True
+        except:
+            return False

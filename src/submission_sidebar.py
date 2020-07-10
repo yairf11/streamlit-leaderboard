@@ -1,6 +1,6 @@
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, Callable
 
 import streamlit as st
 
@@ -9,10 +9,12 @@ from src.submissions_manager import SubmissionManager, SingleParticipantSubmissi
 
 class SubmissionSidebar:
     def __init__(self, username: str, submission_manager: SubmissionManager,
-                 submission_file_extension: Optional[str] = None):
+                 submission_file_extension: Optional[str] = None,
+                 submission_validator: Optional[Callable[[Union[StringIO, BytesIO]], bool]] = None):
         self.username = username
         self.submission_manager = submission_manager
         self.submission_file_extension = submission_file_extension
+        self.submission_validator = submission_validator
         self.participant : SingleParticipantSubmissions = None
 
     def init_participant(self):
@@ -32,8 +34,17 @@ class SubmissionSidebar:
             if submission_io_stream is None:
                 st.sidebar.error('Please upload a submission file.')
             else:
-                self._upload_submission(submission_io_stream, submission_name)
+                submission_failed = True
+                with st.spinner('Uploading your submission...'):
+                    if self.submission_validator is None or self.submission_validator(submission_io_stream):
+                        self._upload_submission(submission_io_stream, submission_name)
+                        submission_failed = False
+                if submission_failed:
+                    st.sidebar.error("Upload failed. The submission file is not valid.")
+                else:
+                    st.sidebar.success("Upload successful!")
 
     def _upload_submission(self, io_stream: Union[BytesIO, StringIO], submission_name: Optional[str] = None):
         self.init_participant()
         self.participant.add_submission(io_stream, submission_name, self.submission_file_extension)
+
