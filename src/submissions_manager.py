@@ -2,18 +2,19 @@ import shutil
 from datetime import datetime
 from io import BytesIO, StringIO
 from pathlib import Path
-from typing import List, Callable, Tuple, Dict, Union, Optional
+from typing import List, Tuple, Dict, Union, Optional
 
 from src.evaluator import Metric, Evaluator
 from src.utils import remove_illegal_filename_characters
 
 
 class SingleParticipantSubmissions:
-    def __init__(self, participant_submission_dir: Path, ):
+    def __init__(self, participant_submission_dir: Path):
         self.participant_submission_dir = participant_submission_dir
         self._create_participant_dir()
         self.participant_name = self.participant_submission_dir.parts[-1]
         self.results: Dict[Path: Tuple[Metric, ...]] = dict()
+        self._datetime_format = '%Y-%m-%dT%H-%M-%S-%f'
 
     def _create_participant_dir(self):
         self.participant_submission_dir.mkdir(parents=True, exist_ok=True)
@@ -22,10 +23,13 @@ class SingleParticipantSubmissions:
         return [x for x in self.participant_submission_dir.iterdir() if x.is_file()]
 
     def _add_timestamp_to_string(self, input_string: str) -> str:
-        return input_string + '_' + datetime.now().strftime('%Y-%m-%dT%H-%M-%S-%f')
+        return input_string + '_' + datetime.now().strftime(self._datetime_format)
 
-    def _get_submission_name_from_filename(self, filename: str) -> str:
-        return ''.join(filename.split('_')[:-1])
+    def get_submission_name_from_path(self, filepath: Path) -> str:
+        return '_'.join(filepath.parts[-1].split('_')[:-1])
+
+    def get_datetime_from_path(self, filepath: Path) -> datetime:
+        return datetime.strptime(filepath.parts[-1].split('_')[-1], self._datetime_format)
 
     def add_submission(self, io_stream: Union[BytesIO, StringIO], submission_name: Optional[str] = None,
                        file_type_extension: Optional[str] = None):
@@ -50,6 +54,9 @@ class SingleParticipantSubmissions:
     def get_best_result(self) -> Tuple[Path, Tuple[Metric, ...]]:
         return None if not self.results else max([(path, result) for path, result in self.results.items()],
                                                  key=lambda x: x[1])
+
+    def submissions_hash(self) -> int:
+        return hash(tuple(self.get_submissions()))
 
 
 class SubmissionManager:

@@ -39,9 +39,6 @@ login.init()
 
 if login.run_and_return_if_access_is_allowed():
     if not login.has_user_signed_out():
-        submission_sidebar = get_submission_sidebar(login.get_username())
-        submission_sidebar.run()
-
-        leaderboard = get_leaderboard()
-        leaderboard.display_leaderboard()
+        get_submission_sidebar(login.get_username()).run()
+        get_leaderboard().display_leaderboard()
 
