@@ -1,13 +1,12 @@
 import streamlit as st
 
 from src.session_state import get_session_state
-from src.submissions_manager import SubmissionManager
-from src.username_password_manager import UsernamePasswordManager
+from src.username_password_manager import UsernamePasswordManagerArgon2
 from src.utils import remove_illegal_filename_characters
 
 
 class Login:
-    def __init__(self, password_manager: UsernamePasswordManager):
+    def __init__(self, password_manager: UsernamePasswordManagerArgon2):
         self.password_manager = password_manager
         self.session_state = get_session_state(username='', is_logged_in=False)
 
@@ -62,12 +61,12 @@ class Login:
         if not login_button:
             return False
         if (self.password_manager.is_username_taken(username)) and \
-                (pwd == self.password_manager.decrypt(username)):
+                (self.password_manager.verify(username, pwd)):
             self.session_state.username = username
             self.session_state.is_logged_in = True
             return True
         else:
-            st.error("The username or password you entered is incorrect")
+            st.sidebar.error("The username or password you entered is incorrect")
             return False
 
     def _is_valid_username(self, username: str) -> bool:
@@ -92,7 +91,7 @@ class Login:
             st.sidebar.error('Please choose a password')
         else:
             self.session_state.username = username
-            self.password_manager.encrypt(username, pwd)
+            self.password_manager.store(username, pwd)
             self.session_state.is_logged_in = True
             return True
         return False

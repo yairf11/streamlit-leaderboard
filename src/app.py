@@ -4,16 +4,16 @@ import streamlit as st
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.absolute()))
 from src.login import Login
-from src.username_password_manager import UsernamePasswordManager
+from src.username_password_manager import UsernamePasswordManagerArgon2
 from src.submissions_manager import SubmissionManager
-from src.config import SUBMISSIONS_DIR, EVALUATOR_CLASS, EVALUATOR_KWARGS
+from src.config import SUBMISSIONS_DIR, EVALUATOR_CLASS, EVALUATOR_KWARGS, PASSWORDS_FILE, ARGON2_KWARGS
 from src.submission_sidebar import SubmissionSidebar
 from src.evaluator import Evaluator
 from src.leaderboard import Leaderboard
 
 @st.cache(allow_output_mutation=True)
 def get_login() -> Login:
-    password_manager = UsernamePasswordManager()
+    password_manager = UsernamePasswordManagerArgon2(PASSWORDS_FILE, **ARGON2_KWARGS)
     return Login(password_manager)
 
 @st.cache(allow_output_mutation=True)
