@@ -73,6 +73,9 @@ class SubmissionManager:
     def _create_submissions_dir(self):
         self.submissions_dir.mkdir(parents=True, exist_ok=True)
 
+    def participant_exists(self, participant_name: str) -> bool:
+        return participant_name in self._participants
+
     def get_participant(self, participant_name: str) -> SingleParticipantSubmissions:
         return self._participants[participant_name]
 

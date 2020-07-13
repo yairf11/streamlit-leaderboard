@@ -10,6 +10,8 @@ from src.config import SUBMISSIONS_DIR, EVALUATOR_CLASS, EVALUATOR_KWARGS, PASSW
 from src.submission_sidebar import SubmissionSidebar
 from src.evaluator import Evaluator
 from src.leaderboard import Leaderboard
+from src.personal_progress import PersonalProgress
+
 
 @st.cache(allow_output_mutation=True)
 def get_login() -> Login:
@@ -33,6 +35,10 @@ def get_evaluator() -> Evaluator:
 def get_leaderboard() -> Leaderboard:
     return Leaderboard(get_submission_manager(), get_evaluator())
 
+@st.cache(allow_output_mutation=True)
+def get_personal_progress(username: str) -> PersonalProgress:
+    return PersonalProgress(get_submission_manager().get_participant(username), get_evaluator())
+
 
 login = get_login()
 login.init()
@@ -41,4 +47,6 @@ if login.run_and_return_if_access_is_allowed():
     if not login.has_user_signed_out():
         get_submission_sidebar(login.get_username()).run()
         get_leaderboard().display_leaderboard()
+        if get_submission_manager().participant_exists(login.get_username()):
+            get_personal_progress(login.get_username()).show_progress()
 
