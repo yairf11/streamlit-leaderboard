@@ -1,8 +1,8 @@
 import streamlit as st
 
-from src.session_state import get_session_state
-from src.username_password_manager import UsernamePasswordManagerArgon2
-from src.utils import remove_illegal_filename_characters
+from src.common.session_state import get_session_state
+from src.login.username_password_manager import UsernamePasswordManagerArgon2
+from src.common.utils import remove_illegal_filename_characters
 
 
 class Login:
@@ -82,7 +82,7 @@ class Login:
 
         if not self._is_valid_username(username):
             st.sidebar.error('Invalid username. Must have only alphanumeric or ".-_ " characters, '
-                     'without trailing or leading whitespaces.')
+                             'without trailing or leading whitespaces.')
         elif self.password_manager.is_username_taken(username):
             st.sidebar.error("Username already exists.")
         elif pwd != pwd2:

@@ -1,12 +1,14 @@
-from datetime import datetime
+from typing import Optional
+
 import pandas as pd
 from bokeh.models import HoverTool
 from bokeh.palettes import all_palettes
 from bokeh.plotting import figure, Figure
 import streamlit as st
+from streamlit.DeltaGenerator import DeltaGenerator
 
-from src.evaluator import Evaluator
-from src.submissions_manager import SingleParticipantSubmissions
+from src.evaluation.evaluator import Evaluator
+from src.submissions.submissions_manager import SingleParticipantSubmissions
 
 
 class PersonalProgress:
@@ -17,9 +19,12 @@ class PersonalProgress:
         self.submission_name_column = 'Submission name'
         self.submission_time_column = 'Submission time'
 
-    def show_progress(self):
+    def show_progress(self, progress_plot_placeholder: Optional[DeltaGenerator] = None):
         bokeh_plot = self._get_bokeh_progress_plot()
-        st.bokeh_chart(bokeh_plot, use_container_width=True)
+        if progress_plot_placeholder is not None:
+            progress_plot_placeholder.bokeh_chart(bokeh_plot, use_container_width=True)
+        else:
+            st.bokeh_chart(bokeh_plot, use_container_width=True)
 
     @st.cache(hash_funcs={SingleParticipantSubmissions: lambda x: x.submissions_hash()},
               allow_output_mutation=True)

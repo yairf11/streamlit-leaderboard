@@ -7,7 +7,8 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 
 from src.examples.generate_predictions import GROUND_TRUTH_DATA
-from src.evaluator import Metric, Evaluator
+from src.evaluation.evaluator import Evaluator
+from src.evaluation.metric import Metric
 
 
 class F1(Metric):

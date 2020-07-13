@@ -4,17 +4,19 @@ from io import BytesIO, StringIO
 from pathlib import Path
 from typing import List, Tuple, Dict, Union, Optional
 
-from src.evaluator import Metric, Evaluator
-from src.utils import remove_illegal_filename_characters
+from src.evaluation.evaluator import Evaluator
+from src.evaluation.metric import Metric
+from src.common.utils import remove_illegal_filename_characters
 
 
 class SingleParticipantSubmissions:
+    _datetime_format = '%Y-%m-%dT%H-%M-%S-%f'
+
     def __init__(self, participant_submission_dir: Path):
         self.participant_submission_dir = participant_submission_dir
         self._create_participant_dir()
         self.participant_name = self.participant_submission_dir.parts[-1]
         self.results: Dict[Path: Tuple[Metric, ...]] = dict()
-        self._datetime_format = '%Y-%m-%dT%H-%M-%S-%f'
 
     def _create_participant_dir(self):
         self.participant_submission_dir.mkdir(parents=True, exist_ok=True)
@@ -22,14 +24,17 @@ class SingleParticipantSubmissions:
     def get_submissions(self) -> List[Path]:
         return [x for x in self.participant_submission_dir.iterdir() if x.is_file()]
 
-    def _add_timestamp_to_string(self, input_string: str) -> str:
-        return input_string + '_' + datetime.now().strftime(self._datetime_format)
+    @classmethod
+    def _add_timestamp_to_string(cls, input_string: str) -> str:
+        return input_string + '_' + datetime.now().strftime(cls._datetime_format)
 
-    def get_submission_name_from_path(self, filepath: Path) -> str:
+    @classmethod
+    def get_submission_name_from_path(cls, filepath: Path) -> str:
         return '_'.join(filepath.parts[-1].split('_')[:-1])
 
-    def get_datetime_from_path(self, filepath: Path) -> datetime:
-        return datetime.strptime(filepath.parts[-1].split('_')[-1], self._datetime_format)
+    @classmethod
+    def get_datetime_from_path(cls, filepath: Path) -> datetime:
+        return datetime.strptime(filepath.parts[-1].split('_')[-1], cls._datetime_format)
 
     def add_submission(self, io_stream: Union[BytesIO, StringIO], submission_name: Optional[str] = None,
                        file_type_extension: Optional[str] = None):
@@ -96,5 +101,3 @@ class SubmissionManager:
             return
         self._participants[participant_name] = SingleParticipantSubmissions(
             self.submissions_dir.joinpath(participant_name))
-
-
