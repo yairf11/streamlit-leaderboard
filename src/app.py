@@ -7,7 +7,7 @@ from src.login.login import Login
 from src.login.username_password_manager import UsernamePasswordManagerArgon2
 from src.submissions.submissions_manager import SubmissionManager
 from src.config import SUBMISSIONS_DIR, EVALUATOR_CLASS, EVALUATOR_KWARGS, PASSWORDS_FILE, ARGON2_KWARGS, \
-    ALLOWED_SUBMISSION_FILE_EXTENSION
+    ALLOWED_SUBMISSION_FILE_EXTENSION, MAX_NUM_USERS
 from src.submissions.submission_sidebar import SubmissionSidebar
 from src.evaluation.evaluator import Evaluator
 from src.display.leaderboard import Leaderboard
@@ -18,7 +18,7 @@ from src.common.css_utils import set_block_container_width
 @st.cache(allow_output_mutation=True)
 def get_login() -> Login:
     password_manager = UsernamePasswordManagerArgon2(PASSWORDS_FILE, **ARGON2_KWARGS)
-    return Login(password_manager)
+    return Login(password_manager, MAX_NUM_USERS)
 
 
 @st.cache(allow_output_mutation=True)

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import streamlit as st
 
 from src.common.session_state import get_session_state
@@ -6,8 +8,9 @@ from src.common.utils import remove_illegal_filename_characters
 
 
 class Login:
-    def __init__(self, password_manager: UsernamePasswordManagerArgon2):
+    def __init__(self, password_manager: UsernamePasswordManagerArgon2, max_num_users: Optional[int] = None):
         self.password_manager = password_manager
+        self.max_num_users = max_num_users
         self.session_state = get_session_state(username='', is_logged_in=False)
 
         # placeholders
@@ -31,6 +34,11 @@ class Login:
 
     def is_logged_in(self) -> bool:
         return self.session_state.is_logged_in
+
+    def has_user_limit_been_reached(self) -> bool:
+        if self.max_num_users is None:
+            return False
+        return self.max_num_users <= len(self.password_manager.get_all_usernames())
 
     def clear_placeholders(self):
         self.first_login_checkbox_placeholder.empty()
@@ -79,6 +87,9 @@ class Login:
         signup_button = self.login_button_placeholder.button("Sign up")
         if not signup_button:
             return False
+
+        if self.has_user_limit_been_reached():
+            st.sidebar.error("The user limit has been reached. Contact the admin for assistance.")
 
         if not self._is_valid_username(username):
             st.sidebar.error('Invalid username. Must have only alphanumeric or ".-_ " characters, '
