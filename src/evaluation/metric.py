@@ -33,4 +33,4 @@ class Metric(ABC):
         return hash((self.name(), self.value))
 
     def __str__(self):
-        return str(self.value)
+        return f"{self.value:.3f}"

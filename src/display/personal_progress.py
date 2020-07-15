@@ -70,7 +70,7 @@ class PersonalProgress:
                           (column, f'@{{{column}}}')],
                 formatters={f'@{{{submission_time_col}}}': 'datetime'},
                 mode='vline',
-                renderers=[glyph_line if len(self.metric_names) > 1 else glyph_scatter],
+                renderers=[glyph_line if len(progress_df) > 1 else glyph_scatter],
             ))
         p.legend.click_policy = "hide"
         return p
