@@ -2,7 +2,7 @@ from pathlib import Path
 
 from src.examples.f1_precision_recall_example import ExampleEvaluator
 
-SUBMISSIONS_DIR = Path(__file__).parent.parent.absolute() / 'submissions'
+SUBMISSIONS_DIR = Path(__file__).parent.parent.absolute() / 'user_submissions'
 
 PASSWORDS_FILE = Path(__file__).parent.parent.absolute() / 'passwords.json'
 ARGON2_KWARGS = {}

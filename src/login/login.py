@@ -90,8 +90,7 @@ class Login:
 
         if self.has_user_limit_been_reached():
             st.sidebar.error("The user limit has been reached. Contact the admin for assistance.")
-
-        if not self._is_valid_username(username):
+        elif not self._is_valid_username(username):
             st.sidebar.error('Invalid username. Must have only alphanumeric or ".-_ " characters, '
                              'without trailing or leading whitespaces.')
         elif self.password_manager.is_username_taken(username):

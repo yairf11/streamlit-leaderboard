@@ -34,7 +34,10 @@ class SingleParticipantSubmissions:
 
     @classmethod
     def get_datetime_from_path(cls, filepath: Path) -> datetime:
-        return datetime.strptime(filepath.parts[-1].split('_')[-1], cls._datetime_format)
+        datetime_part = filepath.parts[-1].split('_')[-1]
+        if '.' in datetime_part:
+            datetime_part = datetime_part.split('.')[0]
+        return datetime.strptime(datetime_part, cls._datetime_format)
 
     def add_submission(self, io_stream: Union[BytesIO, StringIO], submission_name: Optional[str] = None,
                        file_type_extension: Optional[str] = None):
