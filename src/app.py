@@ -2,8 +2,6 @@ import sys, pathlib
 
 import streamlit as st
 
-from src.common.css_utils import set_block_container_width
-
 sys.path.append(str(pathlib.Path(__file__).parent.parent.absolute()))
 from src.login.login import Login
 from src.login.username_password_manager import UsernamePasswordManagerArgon2
@@ -14,6 +12,7 @@ from src.submissions.submission_sidebar import SubmissionSidebar
 from src.evaluation.evaluator import Evaluator
 from src.display.leaderboard import Leaderboard
 from src.display.personal_progress import PersonalProgress
+from src.common.css_utils import set_block_container_width
 
 
 @st.cache(allow_output_mutation=True)
