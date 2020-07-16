@@ -2,7 +2,7 @@
 A general purpose leaderboard for small ML competitions using Streamlit.
 
 ## Demo
-
+![](demo.gif)
 
 
 ## Installation
