@@ -4,7 +4,7 @@ import streamlit as st
 
 from src.common.session_state import get_session_state
 from src.login.username_password_manager import UsernamePasswordManagerArgon2
-from src.common.utils import remove_illegal_filename_characters
+from src.common.utils import remove_illegal_filename_characters, is_legal_filename
 
 
 class Login:
@@ -78,7 +78,7 @@ class Login:
             return False
 
     def _is_valid_username(self, username: str) -> bool:
-        return (len(username) > 0) and remove_illegal_filename_characters(username) == username
+        return (len(username) > 0) and is_legal_filename(username)
 
     def try_signup(self) -> bool:
         username = self.username_placeholder.text_input("Username:", value="", max_chars=30)

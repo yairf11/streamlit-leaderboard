@@ -1,3 +1,4 @@
+import base64
 import shutil
 from datetime import datetime
 from io import BytesIO, StringIO
@@ -6,7 +7,7 @@ from typing import List, Tuple, Dict, Union, Optional
 
 from src.evaluation.evaluator import Evaluator
 from src.evaluation.metric import Metric
-from src.common.utils import remove_illegal_filename_characters
+from src.common.utils import remove_illegal_filename_characters, is_legal_filename
 
 
 class SingleParticipantSubmissions:
@@ -30,7 +31,7 @@ class SingleParticipantSubmissions:
 
     @classmethod
     def get_submission_name_from_path(cls, filepath: Path) -> str:
-        return '_'.join(filepath.parts[-1].split('_')[:-1])
+        return base64.urlsafe_b64decode('_'.join(filepath.parts[-1].split('_')[:-1])).decode()
 
     @classmethod
     def get_datetime_from_path(cls, filepath: Path) -> datetime:
@@ -41,9 +42,10 @@ class SingleParticipantSubmissions:
 
     def add_submission(self, io_stream: Union[BytesIO, StringIO], submission_name: Optional[str] = None,
                        file_type_extension: Optional[str] = None):
-        submission_name = self._add_timestamp_to_string(submission_name or '')
+        file_safe_submission_name = base64.urlsafe_b64encode(submission_name.encode()).decode()
+        file_safe_submission_name = self._add_timestamp_to_string(file_safe_submission_name or '')
         file_type_extension = f'.{file_type_extension}' if file_type_extension else ''
-        submission_filename = remove_illegal_filename_characters(submission_name) + file_type_extension
+        submission_filename = file_safe_submission_name + file_type_extension
         submission_path = self.participant_submission_dir.joinpath(submission_filename)
         with submission_path.open('w') as f:
             io_stream.seek(0)
@@ -97,7 +99,9 @@ class SubmissionManager:
                 del self._participants[participant]
 
     def add_participant(self, participant_name, exists_ok: bool = False):
-        participant_name = remove_illegal_filename_characters(participant_name)
+        if not is_legal_filename(participant_name):
+            raise ValueError('Illegal participant name. Must have only alphanumeric or ".-_ " characters, '
+                             'without trailing or leading whitespaces.')
         if participant_name in self._participants:
             if not exists_ok:
                 raise ValueError(f"Participant {participant_name} already exists!")
