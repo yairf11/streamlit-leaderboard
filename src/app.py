@@ -50,16 +50,17 @@ def get_personal_progress(username: str) -> PersonalProgress:
 
 login = get_login()
 login.init()
-leaderboard_placeholders = st.empty()
+leaderboard_placeholder = st.empty()
 progress_placeholder = st.empty()
 
-get_leaderboard().display_leaderboard(leaderboard_placeholders)
 
-if login.run_and_return_if_access_is_allowed():
-    if not login.has_user_signed_out():
-        get_submission_sidebar(login.get_username()).run_submission()
-        if get_submission_manager().participant_exists(login.get_username()):
-            get_personal_progress(login.get_username()).show_progress(progress_placeholder)
+if login.run_and_return_if_access_is_allowed() and not login.has_user_signed_out():
+    get_submission_sidebar(login.get_username()).run_submission()
+    get_leaderboard().display_leaderboard(leaderboard_placeholder)
+    if get_submission_manager().participant_exists(login.get_username()):
+        get_personal_progress(login.get_username()).show_progress(progress_placeholder)
+else:
+    get_leaderboard().display_leaderboard(leaderboard_placeholder)
 
 max_width_value = st.sidebar.slider("Select max-width in px", 100, 2000, 1200, 100)
 set_block_container_width(max_width_value)
