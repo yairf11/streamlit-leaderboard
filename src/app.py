@@ -53,12 +53,13 @@ login.init()
 leaderboard_placeholders = st.empty()
 progress_placeholder = st.empty()
 
+get_leaderboard().display_leaderboard(leaderboard_placeholders)
+
 if login.run_and_return_if_access_is_allowed():
     if not login.has_user_signed_out():
         get_submission_sidebar(login.get_username()).run_submission()
-        get_leaderboard().display_leaderboard(leaderboard_placeholders)
         if get_submission_manager().participant_exists(login.get_username()):
             get_personal_progress(login.get_username()).show_progress(progress_placeholder)
 
-        max_width_value = st.sidebar.slider("Select max-width in px", 100, 2000, 1200, 100)
-        set_block_container_width(max_width_value)
+max_width_value = st.sidebar.slider("Select max-width in px", 100, 2000, 1200, 100)
+set_block_container_width(max_width_value)
