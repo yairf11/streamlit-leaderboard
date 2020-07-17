@@ -1,5 +1,8 @@
 # streamlit-leaderboard
-A general purpose leaderboard for small ML competitions using Streamlit.
+A general purpose leaderboard using [Streamlit](https://docs.streamlit.io/en/stable/).
+
+Can be used for small machine learning competitions, or just for conveniently keeping score
+ of the performance of various methods/models.
 
 ## Demo
 ![](demo.gif)
@@ -46,7 +49,9 @@ you can edit the following variables which control the app's most basic behavior
 
 `MAX_NUM_USERS`: The maximum number of users allowed in the system. If `None`, no limitation is enforced.
 
-
+Lastly, if you want to change some of [Streamlit's defaults](https://docs.streamlit.io/en/stable/cli.html#view-all-config-options),
+ you can edit them in the [config.toml](.streamlit/config.toml) file.
+ Currently, the maximum size allowed for a submission file is 1 MB (`maxUploadSize = 1`). 
 
 
 
