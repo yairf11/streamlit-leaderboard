@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import BytesIO, StringIO
 from typing import Union, Optional, Callable
 
@@ -15,6 +16,7 @@ class SubmissionSidebar:
         self.submission_file_extension = submission_file_extension
         self.submission_validator = submission_validator
         self.participant: SingleParticipantSubmissions = None
+        self.file_uploader_key = f"file upload {username}"
 
     def init_participant(self):
         self.submission_manager.add_participant(self.username, exists_ok=True)
@@ -28,7 +30,8 @@ class SubmissionSidebar:
     def submit(self):
         file_extension_suffix = f" (.{self.submission_file_extension})" if self.submission_file_extension else None
         submission_io_stream = st.sidebar.file_uploader("Upload your submission file" + file_extension_suffix,
-                                                        type=self.submission_file_extension)
+                                                        type=self.submission_file_extension,
+                                                        key=self.file_uploader_key)
         submission_name = st.sidebar.text_input('Submission name (optional):', value='', max_chars=30)
         if st.sidebar.button('Submit'):
             if submission_io_stream is None:
