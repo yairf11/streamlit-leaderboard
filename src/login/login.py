@@ -6,12 +6,16 @@ from src.common.session_state import get_session_state
 from src.login.username_password_manager import UsernamePasswordManagerArgon2
 from src.common.utils import remove_illegal_filename_characters, is_legal_filename
 
+class LoginState:
+    def __init__(self, username: str, is_logged_in: bool):
+        self.username = username
+        self.is_logged_in = is_logged_in
 
 class Login:
     def __init__(self, password_manager: UsernamePasswordManagerArgon2, max_num_users: Optional[int] = None):
         self.password_manager = password_manager
         self.max_num_users = max_num_users
-        self.session_state = get_session_state(username='', is_logged_in=False)
+        self.session_state = LoginState(username='', is_logged_in=False)
 
         # placeholders
         self.first_login_checkbox_placeholder = None

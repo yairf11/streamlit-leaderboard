@@ -47,7 +47,7 @@ class SingleParticipantSubmissions:
         file_type_extension = f'.{file_type_extension}' if file_type_extension else ''
         submission_filename = file_safe_submission_name + file_type_extension
         submission_path = self.participant_submission_dir.joinpath(submission_filename)
-        with submission_path.open('w') as f:
+        with submission_path.open('wb') as f:
             io_stream.seek(0)
             shutil.copyfileobj(io_stream, f)
 

@@ -8,8 +8,8 @@ GROUND_TRUTH_DATA = {str(i): int((i % 3) == 0) for i in range(NUM_PREDS)}
 
 PREDICTIONS_DIR = Path(__file__).parent.absolute() / 'predictions'
 
-
 def dump_predictions(prediction_dict, prediction_file):
+    PREDICTIONS_DIR.mkdir(exist_ok=True)
     with PREDICTIONS_DIR.joinpath(prediction_file).open('w') as f:
         json.dump(prediction_dict, f)
 

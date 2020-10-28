@@ -3,6 +3,7 @@ from typing import Union, Optional, Callable
 
 import streamlit as st
 
+from src.config import ADMIN_USERNAME
 from src.submissions.submissions_manager import SubmissionManager, SingleParticipantSubmissions
 
 
@@ -23,8 +24,9 @@ class SubmissionSidebar:
 
     def run_submission(self):
         st.sidebar.title(f"Hello {self.username}!")
-        st.sidebar.markdown("## Submit Your Results :fire:")
-        self.submit()
+        if self.username != ADMIN_USERNAME:
+            st.sidebar.markdown("## Submit Your Results :fire:")
+            self.submit()
 
     def submit(self):
         file_extension_suffix = f" (.{self.submission_file_extension})" if self.submission_file_extension else None

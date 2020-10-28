@@ -1,9 +1,10 @@
-"""Hack to add per-session state to Streamlit.
+"""Taken from https://gist.github.com/tvst/036da038ab3e999a64497f42de966a92
+Hack to add per-session state to Streamlit.
 Usage
 -----
->>> import src.session_state
+>>> import SessionState
 >>>
->>> session_state = src.session_state.get_session_state(user_name='', favorite_color='black')
+>>> session_state = SessionState.get_session_state(user_name='', favorite_color='black')
 >>> session_state.user_name
 ''
 >>> session_state.user_name = 'Mary'
@@ -15,8 +16,13 @@ result:
 >>> session_state.user_name
 'Mary'
 """
-import streamlit.ReportThread as ReportThread
-from streamlit.server.Server import Server
+try:
+    import streamlit.ReportThread as ReportThread
+    from streamlit.server.Server import Server
+except Exception:
+    # Streamlit >= 0.65.0
+    import streamlit.report_thread as ReportThread
+    from streamlit.server.server import Server
 
 
 class SessionState(object):
@@ -76,17 +82,20 @@ def get_session_state(**kwargs):
     for session_info in session_infos:
         s = session_info.session
         if (
-                # Streamlit < 0.54.0
-                (hasattr(s, '_main_dg') and s._main_dg == ctx.main_dg)
-                or
-                # Streamlit >= 0.54.0
-                (not hasattr(s, '_main_dg') and s.enqueue == ctx.enqueue)
+            # Streamlit < 0.54.0
+            (hasattr(s, '_main_dg') and s._main_dg == ctx.main_dg)
+            or
+            # Streamlit >= 0.54.0
+            (not hasattr(s, '_main_dg') and s.enqueue == ctx.enqueue)
+            or
+            # Streamlit >= 0.65.2
+            (not hasattr(s, '_main_dg') and s._uploaded_file_mgr == ctx.uploaded_file_mgr)
         ):
             this_session = s
 
     if this_session is None:
         raise RuntimeError(
-            "Oh noes. Couldn't get your Streamlit Session object"
+            "Oh noes. Couldn't get your Streamlit Session object. "
             'Are you doing something fancy with threads?')
 
     # Got the session object! Now let's attach some state into it.
