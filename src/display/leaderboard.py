@@ -1,9 +1,9 @@
-from typing import Dict, Optional
+from typing import Dict
 
 import streamlit as st
 import pandas as pd
-from streamlit.DeltaGenerator import DeltaGenerator
 
+from src.config import SHOW_TOP_K_ONLY, ADMIN_USERNAME
 from src.evaluation.evaluator import Evaluator
 from src.submissions.submissions_manager import SubmissionManager, SingleParticipantSubmissions
 
@@ -14,8 +14,9 @@ class Leaderboard:
         self.submissions_manager = submissions_manager
         self.evaluator = evaluator
 
-    @st.cache(hash_funcs={SingleParticipantSubmissions: lambda x: x.submissions_hash()})
-    def _get_sorted_leaderboard(self, participants_dict: Dict[str, SingleParticipantSubmissions]) -> pd.DataFrame:
+    @st.cache(hash_funcs={SingleParticipantSubmissions: lambda x: x.submissions_hash()}, show_spinner=False)
+    def _get_sorted_leaderboard(self, participants_dict: Dict[str, SingleParticipantSubmissions],
+                                username: str) -> pd.DataFrame:
         for participant in participants_dict.values():
             participant.update_results(self.evaluator)
         metric_names = [metric.name() for metric in self.evaluator.metrics()]
@@ -27,10 +28,12 @@ class Leaderboard:
         leaderboard = leaderboard.sort_values(by=metric_names + ['Submission Time'],
                                               ascending=[False] * len(metric_names) + [True], ignore_index=True)
         leaderboard.index += 1
+        if username != ADMIN_USERNAME:
+            leaderboard = leaderboard.iloc[:SHOW_TOP_K_ONLY]
         return leaderboard
 
-    def display_leaderboard(self, leaderboard_placeholder: Optional[DeltaGenerator] = None):
-        leaderboard = self._get_sorted_leaderboard(self.submissions_manager.participants)
+    def display_leaderboard(self, username: str, leaderboard_placeholder = None):
+        leaderboard = self._get_sorted_leaderboard(self.submissions_manager.participants, username)
         if leaderboard_placeholder is not None:
             leaderboard_placeholder.table(leaderboard)
         else:
